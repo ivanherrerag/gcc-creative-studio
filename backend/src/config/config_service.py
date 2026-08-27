@@ -53,6 +53,10 @@ class ConfigService(BaseSettings):
         default="", alias="IDENTITY_PLATFORM_ALLOWED_ORGS"
     )
 
+    # --- Security Proxy ---
+    USE_SECURITY_PROXY: bool = False
+    PROXY_BASE_URL: str = "http://localhost:8080/api/security-proxy"
+
     # --- Storage ---
     # The defaults will be set in the validator below to prevent recursion.
     GENMEDIA_BUCKET: str = ""

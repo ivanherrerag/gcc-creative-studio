@@ -51,14 +51,23 @@ class GenAIModelSetup:
                     f"Initializing shared GenAI client for project '{project_id}' in location '{location}'",
                 )
 
+                # Determine base_url: Proxy or Direct
+                base_url = None
+                if config.USE_SECURITY_PROXY:
+                    base_url = config.PROXY_BASE_URL
+                    logger.info(
+                        f"Routing GenAI traffic through security proxy: {base_url}"
+                    )
+
                 cls._client = Client(
                     project=project_id,
                     location=location,
                     vertexai=config.INIT_VERTEX,
                     http_options={
+                        "base_url": base_url,
                         "headers": {
                             "user-agent": f"creative-studio/{VERSION} (+https://github.com/GoogleCloudPlatform/gcc-creative-studio)"
-                        }
+                        },
                     },
                 )
             except Exception as e:
@@ -82,12 +91,20 @@ class GenAIModelSetup:
                     f"Initializing shared Gemini Omni GenAI client for project '{project_id}' in location 'global'",
                 )
 
+                # Determine base_url: Proxy or Direct
+                base_url = "https://aiplatform.googleapis.com"
+                if config.USE_SECURITY_PROXY:
+                    base_url = config.PROXY_BASE_URL
+                    logger.info(
+                        f"Routing Omni GenAI traffic through security proxy: {base_url}"
+                    )
+
                 cls._omni_client = Client(
                     vertexai=True,
                     project=project_id,
                     location="global",
                     http_options={
-                        "base_url": "https://aiplatform.googleapis.com",
+                        "base_url": base_url,
                         "headers": {
                             "user-agent": f"creative-studio/{VERSION} (+https://github.com/GoogleCloudPlatform/gcc-creative-studio)"
                         },
