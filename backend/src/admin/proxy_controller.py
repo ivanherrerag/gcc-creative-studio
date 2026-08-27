@@ -46,10 +46,22 @@ async def loopback_proxy(path: str, request: Request):
     
     async with httpx.AsyncClient() as client:
         # We forward the body and the headers (which include the Auth token)
-        # We MUST remove the 'host' and 'content-length' headers so the target Google endpoint accepts the request.
+        # We MUST remove hop-by-hop headers so the target Google endpoint accepts the request.
+        hop_by_hop_headers = {
+            "host",
+            "content-length",
+            "connection",
+            "keep-alive",
+            "proxy-authenticate",
+            "proxy-authorization",
+            "te",
+            "trailer",
+            "transfer-encoding",
+            "upgrade",
+        }
         headers = {
             k: v for k, v in request.headers.items() 
-            if k.lower() not in ['host', 'content-length']
+            if k.lower() not in hop_by_hop_headers
         }
         
         try:
@@ -62,10 +74,16 @@ async def loopback_proxy(path: str, request: Request):
             )
             
             # Return the exact response from Vertex back to the SDK
+            # Remove content-encoding and content-length because httpx automatically
+            # decompresses the body.
+            response_headers = dict(response.headers)
+            response_headers.pop("content-encoding", None)
+            response_headers.pop("content-length", None)
+            
             return Response(
                 content=response.content,
                 status_code=response.status_code,
-                headers=dict(response.headers)
+                headers=response_headers
             )
         except Exception as e:
             logger.error(f"Proxy failed to forward request to {google_url}: {e}")
