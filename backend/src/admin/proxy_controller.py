@@ -46,8 +46,11 @@ async def loopback_proxy(path: str, request: Request):
     
     async with httpx.AsyncClient() as client:
         # We forward the body and the headers (which include the Auth token)
-        # We MUST remove the 'host' header so the target Google endpoint accepts the request.
-        headers = {k: v for k, v in request.headers.items() if k.lower() != 'host'}
+        # We MUST remove the 'host' and 'content-length' headers so the target Google endpoint accepts the request.
+        headers = {
+            k: v for k, v in request.headers.items() 
+            if k.lower() not in ['host', 'content-length']
+        }
         
         try:
             response = await client.post(
