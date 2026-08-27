@@ -49,6 +49,7 @@ steps:
       - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/${_SERVICE_NAME}:$SHORT_SHA'
       - '--region'
       - '${_REGION}'
+      - '--set-env-vars=USE_CLOUD_SQL_AUTH_PROXY=true'
       - '--quiet' # Suppress interactive prompts for CI/CD environments
 
 # BEST PRACTICE: Explicitly declare the image(s) built by this pipeline.
