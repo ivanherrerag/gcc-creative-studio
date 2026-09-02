@@ -23,7 +23,3 @@ variable "network_id" {
   description = "The ID of the VPC network"
 }
 
-variable "private_vpc_connection_id" {
-  type = string
-  description = "Required to enforce dependency on peering"
-}

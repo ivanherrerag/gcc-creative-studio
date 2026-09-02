@@ -441,8 +441,11 @@ configure_environment() {
         export TFVARS_FILE=$TFVARS_FILE_PATH # Set context for helper function
         prompt "Please provide the following value:"
         prompt_and_update_tfvar "GitHub Branch to deploy from" "$DEFAULT_BRANCH_NAME" "github_branch_name" "GITHUB_BRANCH"
+        prompt_and_update_tfvar "Name of your existing VPC Network" "cs-vpc" "vpc_network_name" "VPC_NETWORK_NAME"
+        prompt_and_update_tfvar "Name of the existing Subnetwork for Cloud Run" "cs-subnet" "vpc_subnetwork_name" "VPC_SUBNETWORK_NAME"
 
-        write_state "ENV_NAME" "$ENV_NAME"; write_state "BE_SERVICE_NAME" "$BE_SERVICE_NAME"; write_state "FE_SERVICE_NAME" "$FE_SERVICE_NAME"; write_state "GITHUB_BRANCH" "$GITHUB_BRANCH"
+
+        write_state "ENV_NAME" "$ENV_NAME"; write_state "BE_SERVICE_NAME" "$BE_SERVICE_NAME"; write_state "FE_SERVICE_NAME" "$FE_SERVICE_NAME"; write_state "GITHUB_BRANCH" "$GITHUB_BRANCH"; write_state "VPC_NETWORK_NAME" "$VPC_NETWORK_NAME"; write_state "VPC_SUBNETWORK_NAME" "$VPC_SUBNETWORK_NAME"
     else info "Environment directory '$ENV_DIR' already configured."; fi
     success "Configuration files for '$ENV_NAME' environment are ready."
 }

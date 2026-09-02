@@ -68,34 +68,15 @@ locals {
   )
 }
 
-# VPC Network
-resource "google_compute_network" "main" {
-  name                    = "cs-network-${var.environment}"
-  auto_create_subnetworks = false
+# Existing VPC Network
+data "google_compute_network" "main" {
+  name = var.vpc_network_name
 }
 
-# Subnet for Cloud Run Direct VPC Egress
-resource "google_compute_subnetwork" "main" {
-  name          = "cs-subnet-${var.environment}"
-  ip_cidr_range = "10.0.0.0/24" # Larger range recommended for scaling
-  region        = var.gcp_region
-  network       = google_compute_network.main.id
-}
-
-# Private IP for Cloud SQL
-resource "google_compute_global_address" "private_ip_address" {
-  name          = "cs-sql-private-ip-${var.environment}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.main.id
-}
-
-# VPC Peering Connection
-resource "google_service_networking_connection" "private_vpc_connection" {
-  network                 = google_compute_network.main.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+# Existing Subnet for Cloud Run Direct VPC Egress
+data "google_compute_subnetwork" "main" {
+  name   = var.vpc_subnetwork_name
+  region = var.gcp_region
 }
 
 
@@ -124,8 +105,7 @@ module "postgresql" {
   
   # Pass the ACTUAL value to create the user
   db_password = data.google_secret_manager_secret_version.db_password.secret_data
-  network_id = google_compute_network.main.id
-  private_vpc_connection_id = google_service_networking_connection.private_vpc_connection.id
+  network_id = data.google_compute_network.main.id
 }
 
 # --- Service Module Calls ---
@@ -164,8 +144,8 @@ module "backend_service" {
   
   # Pass the Secret ID reference (NOT the value) for Cloud Run
   db_secret_id              = "creative-studio-db-password"
-  network_id = google_compute_network.main.id
-  subnetwork_id = google_compute_subnetwork.main.id
+  network_id = data.google_compute_network.main.id
+  subnetwork_id = data.google_compute_subnetwork.main.id
 }
 
 resource "google_firebase_project" "default" {

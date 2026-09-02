@@ -125,3 +125,13 @@ variable "apis_to_enable" {
     "run.googleapis.com"               # Required for Cloud Run
   ]
 }
+
+variable "vpc_network_name" {
+  type        = string
+  description = "The name of the existing VPC Network"
+}
+
+variable "vpc_subnetwork_name" {
+  type        = string
+  description = "The name of the existing Subnetwork for Cloud Run"
+}

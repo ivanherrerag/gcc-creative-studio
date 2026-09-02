@@ -21,7 +21,6 @@ resource "google_sql_database_instance" "default" {
   database_version = "POSTGRES_18" # Latest stable version
   region           = var.region
   project          = var.project_id
-  depends_on       = [var.private_vpc_connection_id]
 
   settings {
     tier = "db-perf-optimized-N-2"

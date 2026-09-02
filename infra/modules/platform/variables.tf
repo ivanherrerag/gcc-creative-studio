@@ -87,3 +87,13 @@ variable "backend_runtime_secrets" {
   description = "Secrets to mount in the backend container at runtime."
   default     = {}
 }
+
+variable "vpc_network_name" {
+  type        = string
+  description = "The name of the existing VPC Network"
+}
+
+variable "vpc_subnetwork_name" {
+  type        = string
+  description = "The name of the existing Subnetwork for Cloud Run"
+}

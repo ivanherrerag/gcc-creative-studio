@@ -1,4 +1,7 @@
 gcp_project_id = "YOUR_GCP_PROJECT_ID"
+vpc_network_name = "YOUR_VPC_NETWORK_NAME"
+vpc_subnetwork_name = "YOUR_VPC_SUBNETWORK_NAME"
+
 gcp_region     = "us-central1"
 environment    = "development"
 
