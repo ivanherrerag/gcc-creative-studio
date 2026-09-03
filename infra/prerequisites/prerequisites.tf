@@ -113,7 +113,19 @@ resource "google_compute_firewall" "allow_iap_ssh" {
   description   = "Allow SSH from Identity-Aware Proxy (IAP)"
 }
 
-# 6. Bastion VM
+# 6. Bastion Service Account
+resource "google_service_account" "bastion_sa" {
+  account_id   = "cs-bastion-sa"
+  display_name = "Bastion VM Service Account"
+}
+
+resource "google_project_iam_member" "bastion_owner" {
+  project = var.project_id
+  role    = "roles/owner"
+  member  = "serviceAccount:${google_service_account.bastion_sa.email}"
+}
+
+# 7. Bastion VM
 resource "google_compute_instance" "bastion" {
   name         = "cs-bastion-vm"
   machine_type = "e2-medium"
@@ -138,8 +150,22 @@ resource "google_compute_instance" "bastion" {
     enable_integrity_monitoring = true
   }
 
-  # Allow full access to Cloud APIs to run the script
+  # Use the dedicated Service Account with Owner permissions
   service_account {
+    email  = google_service_account.bastion_sa.email
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
+
+
+  metadata_startup_script = <<-EOT
+    #!/bin/bash
+    # 1. Update package lists and install required tools
+    apt-get update
+    apt-get install -y npm unzip wget git curl jq
+
+    # 2. Install Terraform globally
+    wget https://releases.hashicorp.com/terraform/1.14.1/terraform_1.14.1_linux_amd64.zip
+    unzip terraform_1.14.1_linux_amd64.zip
+    mv terraform /usr/local/bin/
+  EOT
 }
